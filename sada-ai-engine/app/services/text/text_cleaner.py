@@ -1,31 +1,3 @@
-# import re
-
-
-# def clean_arabic_text(text):
-
-#     if not text:
-#         return "" 
-
-#     text = text.strip()
-
-#     # remove tashkeel
-#     text = re.sub(r"[ًٌٍَُِّْـ]", "", text)
-
-#     # remove non arabic chars
-#     text = re.sub(r"[^\u0600-\u06FF\s]", "", text)
-
-#     # normalize taa marbuta
-#     text = text.replace("ة", "ه")
-
-#     # remove extra spaces
-#     text = re.sub(r"\s+", " ", text)
-
-#     return text
-
-
-
-
-
 
 import re
 

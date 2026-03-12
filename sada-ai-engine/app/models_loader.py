@@ -1,7 +1,7 @@
 from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC
 
-# MODEL_PATH = "app/models/jonatasgrosman_arabic"
-MODEL_PATH = "app/models/elgeish_arabic"
+MODEL_PATH = "app/models/jonatasgrosman_arabic"
+# MODEL_PATH = "app/models/elgeish_arabic"
 print("Loading Arabic ASR model...")
 
 arabic_asr_processor = Wav2Vec2Processor.from_pretrained(MODEL_PATH)
