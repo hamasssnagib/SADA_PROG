@@ -40,7 +40,8 @@ def detect_isolation(y, sr, target_letter):
         return {
             "accuracy": 0,
             "error_type": "unsupported_letter",
-            "message": "هذا الحرف غير مدعوم في مستوى العزل حالياً"
+            "message": "Unsupported target letter for isolation level",
+            "target_letter": target_letter
         }
 
     # 3. حساب النسبة المئوية
