@@ -13,14 +13,14 @@ Pipeline:
 
 from difflib import SequenceMatcher
 
-from app.services.asr.asr_engine import transcribe_audio
+from app.services.articulation.asr.asr_engine import transcribe_audio
 
-from app.services.phoneme.phoneme_converter import arabic_to_phoneme_sequence
-from app.services.phoneme.phoneme_detector import detect_phoneme_errors
+from app.services.articulation.phoneme.phoneme_converter import arabic_to_phoneme_sequence
+from app.services.articulation.phoneme.phoneme_detector import detect_phoneme_errors
 
-from app.services.text.text_cleaner import clean_arabic_text
-from app.services.text.word_validator import validate_spoken_word
-from app.services.exercise_validation.exercise_validator import validate_exercise
+from app.services.articulation.text.text_cleaner import clean_arabic_text
+from app.services.articulation.text.word_validator import validate_spoken_word
+from app.services.articulation.exercise_validation.exercise_validator import validate_exercise
 
 # ---------------------------------------------------------
 # similarity between words

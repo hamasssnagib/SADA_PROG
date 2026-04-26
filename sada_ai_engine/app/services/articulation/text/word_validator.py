@@ -1,7 +1,7 @@
 from difflib import SequenceMatcher
 
-from app.services.phoneme.phoneme_converter import arabic_to_phoneme_sequence
-from app.services.text.text_cleaner import clean_arabic_text
+from app.services.articulation.phoneme.phoneme_converter import arabic_to_phoneme_sequence
+from app.services.articulation.text.text_cleaner import clean_arabic_text
 
 
 # ---------------------------------------------------------
