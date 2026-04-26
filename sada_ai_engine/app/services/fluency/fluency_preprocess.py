@@ -1,0 +1,121 @@
+"""
+Fluency Preprocessing
+
+Prepares audio for stuttering detection.
+
+IMPORTANT:
+- Preserve timing information
+- Avoid aggressive filtering
+"""
+"""
+❌ فلترة قوية (bandpass شديد)
+❌ تغيير السرعة
+❌ noise reduction عنيف
+❌ segmentation هنا """
+
+import numpy as np
+import librosa
+
+
+# -------------------------------------------------
+# Resample to 16kHz
+# -------------------------------------------------
+
+def resample_audio(y, sr, target_sr=16000):
+
+    if sr != target_sr:
+        y = librosa.resample(
+            y,
+            orig_sr=sr,
+            target_sr=target_sr
+        )
+        sr = target_sr
+
+    return y, sr
+
+
+# -------------------------------------------------
+# Safe Normalize
+# -------------------------------------------------
+
+def normalize_audio(y):
+
+    max_val = np.max(np.abs(y))
+
+    if max_val > 0:
+        y = y / max_val
+
+    return y
+
+
+# -------------------------------------------------
+# Mild Noise Reduction (energy floor)
+# -------------------------------------------------
+
+def mild_denoise(y):
+
+    # remove very low amplitude noise
+    threshold = np.percentile(np.abs(y), 10)
+
+    y[np.abs(y) < threshold] = 0
+
+    return y
+
+
+# -------------------------------------------------
+# Trim leading/trailing silence (ONLY edges)
+# -------------------------------------------------
+
+def trim_edges(y):
+
+    yt, _ = librosa.effects.trim(y, top_db=25)
+
+    return yt
+
+
+# -------------------------------------------------
+# Main Fluency Preprocess
+# -------------------------------------------------
+
+def fluency_preprocess(global_data):
+    """
+    Preprocess audio for fluency detection
+
+    Input:
+        global_data:
+            waveform
+            sample_rate
+
+    Output:
+        dict:
+            waveform
+            sample_rate
+    """
+
+    y = global_data["waveform"]
+    sr = global_data["sample_rate"]
+
+    # -----------------------------
+    # 1) Resample
+    # -----------------------------
+    y, sr = resample_audio(y, sr)
+
+    # -----------------------------
+    # 2) Normalize
+    # -----------------------------
+    y = normalize_audio(y)
+
+    # -----------------------------
+    # 3) Mild denoise
+    # -----------------------------
+    y = mild_denoise(y)
+
+    # -----------------------------
+    # 4) Trim edges only
+    # -----------------------------
+    y = trim_edges(y)
+
+    return {
+        "waveform": y,
+        "sample_rate": sr
+    }
