@@ -80,7 +80,7 @@ async def analyze(
         waveform = global_data["waveform"]
         sr = global_data["sample_rate"]
 
-        if len(waveform) == 0:
+        if len(waveform) < sr * 0.3:
 
             return JSONResponse(
                 status_code=200,
@@ -187,29 +187,21 @@ async def analyze(
                 }
             )
 
+
         # -------------------------------------------------
-        # SESSION DECISION
+        # SESSION DECISION 
         # -------------------------------------------------
-
-        accuracy = analysis_result.get("accuracy") 
-        if accuracy is None:
-
-            accuracy = 0  # default to 0 if not provided by engine
-            decision = "regress"
-            
-        elif accuracy >= 85:
-
-            decision = "promote"
-
-        elif accuracy >= 60:
-
-            decision = "continue"
-
-        else:
-
-            decision = "regress"
+        def get_session_decision(accuracy: float) -> str:
+            if accuracy >= 85:
+                return "promote"
+            elif accuracy >= 60:
+                return "continue"
+            return "regress"
 
 
+        accuracy = analysis_result.get("accuracy") or 0
+        decision = get_session_decision(accuracy)
+        
 
         # -------------------------------------------------
         # RESPONSE STRUCTURE (ERD compatible)
