@@ -50,7 +50,7 @@ def detect_fluency(global_data,target_text=None):
         valid, score, recognized_text = validate_spoken_input(
             recognized_text,
             target_text,
-            threshold=0.35   # أقل عشان fluency مرن
+            threshold=0.2  # for fluency, we can be more lenient on the similarity score since timing is more important than exact wording
         )
 
         if not valid:
