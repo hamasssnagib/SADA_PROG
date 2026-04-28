@@ -7,12 +7,17 @@ from app.services.articulation.acoustic_isolation_detector import extract_featur
 
 def detect_isolation(y, sr, target_letter):
     
+    target_letter = target_letter.strip() # Remove any leading/trailing whitespace
+    
     if len(target_letter) != 1:
         return {
             "accuracy": 0,
             "error_type": "invalid_target_letter",
-            "message": "Isolation level requires a single letter"
+            "details": {
+                "message": "Isolation level requires a single letter"
+            }
         }
+        
 
     # 1. استخراج الخصائص الصوتية للإشارة (DSP)
     features = extract_features(y, sr)
@@ -40,8 +45,10 @@ def detect_isolation(y, sr, target_letter):
         return {
             "accuracy": 0,
             "error_type": "unsupported_letter",
-            "message": "Unsupported target letter for isolation level",
-            "target_letter": target_letter
+            "details": {
+                "message": "Unsupported target letter for isolation level",
+                "target_letter": target_letter
+            }   
         }
 
     # 3. حساب النسبة المئوية
@@ -60,10 +67,12 @@ def detect_isolation(y, sr, target_letter):
     return {
         "accuracy": accuracy,
         "error_type": error_type,
-        "expected_phoneme": target_letter,
-        "spoken_phoneme": target_letter if accuracy >= 60 else None,
-        "confusion_type": None
+        "details": {
+            "expected_phoneme": target_letter,
+            "spoken_phoneme": target_letter if accuracy >= 60 else None,
+            "confusion_type": None
     }
+        }
 
 
 

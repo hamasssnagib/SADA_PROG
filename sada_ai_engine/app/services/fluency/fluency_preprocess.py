@@ -1,17 +1,125 @@
-"""
-Fluency Preprocessing
+# """
+# Fluency Preprocessing
 
-Prepares audio for stuttering detection.
+# Prepares audio for stuttering detection.
 
-IMPORTANT:
-- Preserve timing information
-- Avoid aggressive filtering
-"""
-"""
-❌ فلترة قوية (bandpass شديد)
-❌ تغيير السرعة
-❌ noise reduction عنيف
-❌ segmentation هنا """
+# IMPORTANT:
+# - Preserve timing information
+# - Avoid aggressive filtering
+# """
+# """
+# ❌ فلترة قوية (bandpass شديد)
+# ❌ تغيير السرعة
+# ❌ noise reduction عنيف
+# ❌ segmentation هنا """
+
+# import numpy as np
+# import librosa
+
+
+# # -------------------------------------------------
+# # Resample to 16kHz
+# # -------------------------------------------------
+
+# def resample_audio(y, sr, target_sr=16000):
+
+#     if sr != target_sr:
+#         y = librosa.resample(
+#             y,
+#             orig_sr=sr,
+#             target_sr=target_sr
+#         )
+#         sr = target_sr
+
+#     return y, sr
+
+
+# # -------------------------------------------------
+# # Safe Normalize
+# # -------------------------------------------------
+
+# def normalize_audio(y):
+
+#     max_val = np.max(np.abs(y))
+
+#     if max_val > 0:
+#         y = y / max_val
+
+#     return y
+
+
+# # -------------------------------------------------
+# # Mild Noise Reduction (energy floor)
+# # -------------------------------------------------
+
+# def mild_denoise(y):
+
+#     # remove very low amplitude noise
+#     threshold = np.percentile(np.abs(y), 10)
+
+#     y[np.abs(y) < threshold] = 0
+
+#     return y
+
+
+# # -------------------------------------------------
+# # Trim leading/trailing silence (ONLY edges)
+# # -------------------------------------------------
+
+# def trim_edges(y):
+
+#     yt, _ = librosa.effects.trim(y, top_db=25)
+
+#     return yt
+
+
+# # -------------------------------------------------
+# # Main Fluency Preprocess
+# # -------------------------------------------------
+
+# def fluency_preprocess(global_data):
+#     """
+#     Preprocess audio for fluency detection
+
+#     Input:
+#         global_data:
+#             waveform
+#             sample_rate
+
+#     Output:
+#         dict:
+#             waveform
+#             sample_rate
+#     """
+
+#     y = global_data["waveform"]
+#     sr = global_data["sample_rate"]
+
+#     # -----------------------------
+#     # 1) Resample
+#     # -----------------------------
+#     y, sr = resample_audio(y, sr)
+
+#     # -----------------------------
+#     # 2) Normalize
+#     # -----------------------------
+#     y = normalize_audio(y)
+
+#     # -----------------------------
+#     # 3) Mild denoise
+#     # -----------------------------
+#     y = mild_denoise(y)
+
+#     # -----------------------------
+#     # 4) Trim edges only
+#     # -----------------------------
+#     y = trim_edges(y)
+
+#     return {
+#         "waveform": y,
+#         "sample_rate": sr
+#     }
+
 
 import numpy as np
 import librosa
@@ -20,7 +128,6 @@ import librosa
 # -------------------------------------------------
 # Resample to 16kHz
 # -------------------------------------------------
-
 def resample_audio(y, sr, target_sr=16000):
 
     if sr != target_sr:
@@ -35,9 +142,8 @@ def resample_audio(y, sr, target_sr=16000):
 
 
 # -------------------------------------------------
-# Safe Normalize
+# Safe Normalize (non-destructive)
 # -------------------------------------------------
-
 def normalize_audio(y):
 
     max_val = np.max(np.abs(y))
@@ -49,51 +155,60 @@ def normalize_audio(y):
 
 
 # -------------------------------------------------
-# Mild Noise Reduction (energy floor)
+# VERY mild denoise (safe for fluency)
 # -------------------------------------------------
-
 def mild_denoise(y):
 
-    # remove very low amplitude noise
-    threshold = np.percentile(np.abs(y), 10)
+    # بدل ما نكسر الإشارة، نعمل attenuation بسيط جدًا
+    noise_floor = np.percentile(np.abs(y), 5)
 
-    y[np.abs(y) < threshold] = 0
+    y_clean = y.copy()
+    mask = np.abs(y_clean) < noise_floor
 
-    return y
+    # نقلل مش نلغي
+    y_clean[mask] *= 0.5
+
+    return y_clean
 
 
 # -------------------------------------------------
-# Trim leading/trailing silence (ONLY edges)
+# Trim ONLY leading/trailing silence
 # -------------------------------------------------
-
 def trim_edges(y):
 
     yt, _ = librosa.effects.trim(y, top_db=25)
-
     return yt
 
 
 # -------------------------------------------------
-# Main Fluency Preprocess
+# Energy check (important for stuttering)
 # -------------------------------------------------
+def check_signal_validity(y):
 
+    energy = np.mean(np.abs(y))
+
+    if energy < 1e-4:
+        return False
+
+    return True
+
+
+# -------------------------------------------------
+# Main Fluency Preprocess (FINAL)
+# -------------------------------------------------
 def fluency_preprocess(global_data):
     """
-    Preprocess audio for fluency detection
+    Preprocess audio for stuttering detection
 
-    Input:
-        global_data:
-            waveform
-            sample_rate
-
-    Output:
-        dict:
-            waveform
-            sample_rate
+    IMPORTANT:
+    - Preserve timing
+    - Avoid distortion
     """
 
     y = global_data["waveform"]
     sr = global_data["sample_rate"]
+
+    y = y.astype(np.float32)
 
     # -----------------------------
     # 1) Resample
@@ -101,21 +216,27 @@ def fluency_preprocess(global_data):
     y, sr = resample_audio(y, sr)
 
     # -----------------------------
-    # 2) Normalize
+    # 2) Trim edges ONLY
     # -----------------------------
-    y = normalize_audio(y)
+    y = trim_edges(y)
 
     # -----------------------------
-    # 3) Mild denoise
+    # 3) Check validity
+    # -----------------------------
+    is_valid = check_signal_validity(y)
+
+    # -----------------------------
+    # 4) Mild denoise (SAFE)
     # -----------------------------
     y = mild_denoise(y)
 
     # -----------------------------
-    # 4) Trim edges only
+    # 5) Normalize (LAST STEP)
     # -----------------------------
-    y = trim_edges(y)
+    y = normalize_audio(y)
 
     return {
         "waveform": y,
-        "sample_rate": sr
+        "sample_rate": sr,
+        "valid": is_valid
     }

@@ -23,13 +23,49 @@ from app.services.fluency.segmentation import segmentation_pipeline
 from app.services.fluency.repetition_detection import detect_repetition
 from app.services.fluency.prolongation_detection import detect_prolongation
 from app.services.fluency.fluency_decision import fluency_decision
+from app.services.validation.validation_engine import validate_spoken_input
+from app.services.asr.asr_engine import transcribe_audio
+
+
 
 
 # ---------------------------------------------------------
 # Main Fluency Detection
 # ---------------------------------------------------------
 
-def detect_fluency(global_data):
+def detect_fluency(global_data,target_text=None):
+    
+    recognized_text = None
+    # ---------------------------------------------
+    # STEP 0: VALIDATION 👑
+    # ---------------------------------------------
+
+    if target_text is not None:  # ممكن تبقى كلمة أو جملة
+
+        recognized_text = transcribe_audio(
+            global_data["waveform"],
+            global_data["sample_rate"]
+        )
+
+        valid, score, recognized_text = validate_spoken_input(
+            recognized_text,
+            target_text,
+            threshold=0.35   # أقل عشان fluency مرن
+        )
+
+        if not valid:
+
+            return {
+                "mode": "fluency",
+                "accuracy": 0,
+                "performance": {},
+                "error_type": "wrong_task",
+                "details": {
+                    "recognized_text": recognized_text,
+                    "similarity_score": score
+                }
+            }
+        
 
     # ---------------------------------------------
     # STEP 1: Preprocess
@@ -94,7 +130,7 @@ def detect_fluency(global_data):
     },
 
     "details": {
-
+        "recognized_text": recognized_text if target_text else None,
         "repetition_count": repetition_count,
         "pause_count": pause_count,
         "max_pause": max_pause,

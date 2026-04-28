@@ -15,9 +15,9 @@ from app.services.articulation.asr.asr_engine import transcribe_audio
 from app.services.articulation.phoneme.phoneme_converter import arabic_to_phoneme_sequence
 from app.services.articulation.phoneme.phoneme_detector import detect_phoneme_errors
 
-from app.services.articulation.text.text_cleaner import clean_arabic_text
-from app.services.articulation.text.word_validator import validate_spoken_word
-from app.services.articulation.exercise_validation.exercise_validator import validate_exercise
+from app.services.text.text_cleaner import clean_arabic_text
+from app.services.validation.validation_engine import validate_spoken_input
+from app.services.validation.exercise_validator import validate_exercise
 
 # ---------------------------------------------------------
 # Word articulation detection
@@ -30,7 +30,9 @@ def detect_word_level(
     target_letter
 ):
 
-
+    
+    
+        
 #validate backend input first if the target word and letter are valid for the exercise, if not return error without processing the audio
     valid, error = validate_exercise(target_word, target_letter)
 
@@ -43,10 +45,13 @@ def detect_word_level(
             "error_type": error["error_type"],
 
             "message": error["message"],
-
-            "target_word": error["target_word"],
-            "target_letter": error["target_letter"]
+            "details": {
+                    "target_word": error["target_word"],
+                    "target_letter": error["target_letter"]
         }
+            }
+    
+    
     # -----------------------------------------------------
     # Step 1
     # speech → text
@@ -59,7 +64,9 @@ def detect_word_level(
         return {
             "accuracy": 0,
             "error_type": "no_speech_detected",
-            "recognized_text": None
+            "details": {
+                "recognized_text": None
+            }
         }
 
     # -----------------------------------------------------
@@ -69,17 +76,19 @@ def detect_word_level(
 
     recognized_text = clean_arabic_text(recognized_text)
     target_word = clean_arabic_text(target_word)
+    target_letter = clean_arabic_text(target_letter)
 
     # -----------------------------------------------------
     # Step 3
     # validate spoken word
     # -----------------------------------------------------
 
-    valid, score, recognized_text = validate_spoken_word(
+    valid, score, recognized_text = validate_spoken_input(
 
         recognized_text,
         target_word,
-        target_letter
+        target_letter,
+        threshold=0.5
     )
 
     if not valid:
@@ -90,10 +99,12 @@ def detect_word_level(
 
             "error_type": "wrong_word_spoken",
 
-            "recognized_text": recognized_text,
+            "details": {
+                    "recognized_text": recognized_text,
 
-            "similarity_score": score
+                    "similarity_score": score
         }
+            }
 
     # -----------------------------------------------------
     # Step 4
@@ -110,9 +121,10 @@ def detect_word_level(
             "accuracy": 0,
 
             "error_type": "phoneme_conversion_error",
-
-            "recognized_text": recognized_text
+            "details": {
+                    "recognized_text": recognized_text
         }
+            }
 
     # -----------------------------------------------------
     # Step 5
@@ -166,6 +178,7 @@ def detect_word_level(
 
         "accuracy": detection["accuracy"],
 
-        "word_correct": detection["word_correct"]
+        "word_correct": detection["word_correct"],
+        "error_type": None
     }
 

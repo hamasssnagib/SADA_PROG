@@ -151,7 +151,9 @@ async def analyze(
             )
         elif problem == "fluency":
             # fluency uses raw/global audio (timing sensitive)  
-            analysis_result = detect_fluency(global_data=global_data)
+            analysis_result = detect_fluency(
+                global_data=global_data,
+                target_text=target_sentence or target_word or target)
 
         else:
 
@@ -189,9 +191,12 @@ async def analyze(
         # SESSION DECISION
         # -------------------------------------------------
 
-        accuracy = analysis_result.get("accuracy") or 0
+        accuracy = analysis_result.get("accuracy") 
+        if accuracy is None:
 
-        if accuracy >= 85:
+            accuracy = 0  # default to 0 if not provided by engine
+
+        elif accuracy >= 85:
 
             decision = "promote"
 
@@ -208,8 +213,12 @@ async def analyze(
         # -------------------------------------------------
         # RESPONSE STRUCTURE (ERD compatible)
         # -------------------------------------------------
+        details = analysis_result.get("details") or {} # ensure details is a dict even if engine forgot to include it
         response = {
-
+            "problem": problem,
+            "level": level,
+            
+            
             "session": {
                 "level_id": level_id,
                 "session_number": session_number,
@@ -228,13 +237,14 @@ async def analyze(
 
                 # "block_rate": analysis_result.get("details", {}).get("pause_count", 0),
                 # "repetition_rate": analysis_result.get("details", {}).get("repetition_count", 0),
+                
                 "block_rate": (
-                    analysis_result.get("details", {}).get("pause_count", 0)
+                    details.get("pause_count", 0)
                     if analysis_result.get("mode") == "fluency" else 0
                 ),
 
                 "repetition_rate": (
-                    analysis_result.get("details", {}).get("repetition_count", 0)
+                    details.get("repetition_count", 0)
                     if analysis_result.get("mode") == "fluency" else 0
                 ),
 
@@ -253,7 +263,8 @@ async def analyze(
                 "mfcc_summary": acoustic_features.get("mfcc_summary", [])
             },
 
-            "analysis_details": analysis_result  # 👑 FIX
+            "analysis_details": analysis_result,# include full engine output for debugging and future analysis, but also extract key details to top-level for easy access
+            "mode": analysis_result.get("mode")  # include mode for easier filtering and analysis later
         }
         
         return JSONResponse(

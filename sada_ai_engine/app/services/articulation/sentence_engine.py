@@ -18,9 +18,9 @@ from app.services.articulation.asr.asr_engine import transcribe_audio
 from app.services.articulation.phoneme.phoneme_converter import arabic_to_phoneme_sequence
 from app.services.articulation.phoneme.phoneme_detector import detect_phoneme_errors
 
-from app.services.articulation.text.text_cleaner import clean_arabic_text
-from app.services.articulation.text.word_validator import validate_spoken_word
-from app.services.articulation.exercise_validation.exercise_validator import validate_exercise
+from app.services.text.text_cleaner import clean_arabic_text
+from app.services.validation.validation_engine import validate_spoken_input
+from app.services.validation.exercise_validator import validate_exercise
 
 # ---------------------------------------------------------
 # similarity between words
@@ -65,7 +65,8 @@ def detect_sentence_level(
     target_word,
     target_letter
 ):
-    #validate backend input if the target word and letter are correctly configured
+    
+       #validate backend input if the target word and letter are correctly configured
     valid, error = validate_exercise(target_word, target_letter)
 
     if not valid:
@@ -95,9 +96,11 @@ def detect_sentence_level(
             "accuracy": 0,
 
             "error_type": "no_speech_detected",
+                "details": {
 
-            "recognized_sentence": None
+                     "recognized_sentence": None
         }
+                }
 
     # -----------------------------------------------------
     # Step 2
@@ -106,6 +109,7 @@ def detect_sentence_level(
 
     recognized_sentence = clean_arabic_text(recognized_sentence)
     target_word = clean_arabic_text(target_word)
+    target_sentence = clean_arabic_text(target_sentence)
 
     # -----------------------------------------------------
     # Step 3
@@ -125,36 +129,53 @@ def detect_sentence_level(
             "accuracy": 0,
 
             "error_type": "target_word_not_found",
+            "details": {
 
-            "recognized_sentence": recognized_sentence
+                        "recognized_sentence": recognized_sentence
         }
+            }
 
     # -----------------------------------------------------
     # Step 4
     # validate spoken word
     # -----------------------------------------------------
 
-    valid, val_score, best_word = validate_spoken_word(
+    valid, val_score, best_word = validate_spoken_input(
 
         best_word,
         target_word,
-        target_letter
+        target_letter,
+        threshold=0.45
     )
 
+    # if not valid:
+
+    #     return {
+
+    #         "accuracy": 0,
+
+    #         "error_type": "wrong_word_spoken",
+
+    #         "recognized_sentence": recognized_sentence,
+
+    #         "detected_word": best_word,
+
+    #         "similarity_score": val_score
+    #     }
     if not valid:
 
-        return {
+            return {
 
-            "accuracy": 0,
+                "accuracy": 0,
 
-            "error_type": "wrong_word_spoken",
+                "error_type": "wrong_word_spoken",
 
-            "recognized_sentence": recognized_sentence,
-
-            "detected_word": best_word,
-
-            "similarity_score": val_score
-        }
+                "details": {
+                    "recognized_sentence": recognized_sentence,
+                    "detected_word": best_word,
+                    "similarity_score": val_score
+                }
+            }
 
     # -----------------------------------------------------
     # Step 5
@@ -171,9 +192,11 @@ def detect_sentence_level(
             "accuracy": 0,
 
             "error_type": "phoneme_conversion_error",
+            "details": {
 
-            "recognized_sentence": recognized_sentence
+                  "recognized_sentence": recognized_sentence
         }
+            }
 
     # -----------------------------------------------------
     # Step 6
@@ -189,8 +212,12 @@ def detect_sentence_level(
             "accuracy": 0,
 
             "error_type": "target_letter_error",
+            "details": {
+                "recognized_sentence": recognized_sentence,
+               
+            }
 
-            "recognized_sentence": recognized_sentence
+           
         }
 
     target_phoneme = letter_seq[0]
@@ -229,7 +256,8 @@ def detect_sentence_level(
 
         "accuracy": detection["accuracy"],
 
-        "word_correct": detection["word_correct"]
+        "word_correct": detection["word_correct"],
+        "error_type": None
     }
 
 

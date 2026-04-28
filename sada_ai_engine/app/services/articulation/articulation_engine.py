@@ -66,7 +66,12 @@ def detect_articulation(
     # ---------------------------------------------
     # UNIFIED OUTPUT 👑
     # ---------------------------------------------
-
+    # we unify the output format for all levels to make it easier for the frontend to consume
+    details = result.copy()
+    details.pop("accuracy", None)
+    details.pop("error_type", None)
+    
+    
     return {
 
         "mode": "articulation",
@@ -75,11 +80,12 @@ def detect_articulation(
 
         "performance": {
 
-            "word_correct": result.get("word_correct"),
-            "target_phoneme": result.get("target_phoneme"),
+            "word_correct": result.get("word_correct",None),
+            "target_phoneme": result.get("target_phoneme",None),
         },
+        
 
-        "details": result,
+        "details": details,
 
         "error_type": result.get("error_type")
     }
