@@ -195,7 +195,8 @@ async def analyze(
         if accuracy is None:
 
             accuracy = 0  # default to 0 if not provided by engine
-
+            decision = "regress"
+            
         elif accuracy >= 85:
 
             decision = "promote"
