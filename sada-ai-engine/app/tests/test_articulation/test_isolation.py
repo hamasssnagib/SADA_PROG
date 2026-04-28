@@ -4,10 +4,9 @@ import pytest
 
 from app.services.articulation.isolation_engine import detect_isolation
 
+
 # =========================================================
-
 # BASIC UNIT TESTS 👑
-
 # =========================================================
 
 def test_isolation_invalid_letter():
@@ -20,6 +19,7 @@ def test_isolation_invalid_letter():
     assert result["error_type"] == "invalid_target_letter"
     assert result["accuracy"] == 0
 
+
 def test_isolation_unsupported_letter():
 
     y = np.zeros(16000)
@@ -29,6 +29,7 @@ def test_isolation_unsupported_letter():
 
     assert result["error_type"] == "unsupported_letter"
     assert result["accuracy"] == 0
+
 
 def test_isolation_silence():
 
@@ -40,10 +41,9 @@ def test_isolation_silence():
     assert "accuracy" in result
     assert result["accuracy"] >= 0
 
+
 # =========================================================
-
 # REAL AUDIO TESTS 🔥
-
 # =========================================================
 
 def test_isolation_s_real():
@@ -56,6 +56,7 @@ def test_isolation_s_real():
 
     assert result["accuracy"] >= 0
 
+
 def test_isolation_wrong_sound():
 
     y, sr = librosa.load("tests/assets/sh_sound.wav", sr=16000)
@@ -66,10 +67,9 @@ def test_isolation_wrong_sound():
 
     assert result["error_type"] in [None, "isolation_failed"]
 
+
 # =========================================================
-
 # MOCK TEST (PRO LEVEL 👑)
-
 # =========================================================
 
 def test_isolation_mock(monkeypatch):
