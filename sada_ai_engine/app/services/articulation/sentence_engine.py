@@ -13,7 +13,7 @@ Pipeline:
 
 from difflib import SequenceMatcher
 
-from app.services.articulation.asr.asr_engine import transcribe_audio
+from app.services.asr.asr_engine import transcribe_audio
 
 from app.services.articulation.phoneme.phoneme_converter import arabic_to_phoneme_sequence
 from app.services.articulation.phoneme.phoneme_detector import detect_phoneme_errors

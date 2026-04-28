@@ -1,7 +1,7 @@
 import epitran
 import re
 
-from app.services.articulation.text.text_cleaner import clean_arabic_text
+from app.services.text.text_cleaner import clean_arabic_text
 
 epi = epitran.Epitran("ara-Arab")
 
