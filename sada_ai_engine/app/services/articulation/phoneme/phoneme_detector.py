@@ -200,14 +200,70 @@ def evaluate_phoneme_alignment(stream, target_seq, target_index):
 # MAIN PHONEME ERROR DETECTOR
 # ---------------------------------------------------------
 
-def detect_phoneme_errors(expected_seq, spoken_seq, target_phoneme):
-    """
-    Detect articulation errors for target phoneme inside word.
+# def detect_phoneme_errors(expected_seq, spoken_seq, target_phoneme):
+#     """
+#     Detect articulation errors for target phoneme inside word.
 
-    expected_seq : phonemes of target word
-    spoken_seq   : phonemes of spoken word
-    target_phoneme : phoneme we evaluate
-    """
+#     expected_seq : phonemes of target word
+#     spoken_seq   : phonemes of spoken word
+#     target_phoneme : phoneme we evaluate
+#     """
+
+#     target_positions = find_target_positions(
+#         expected_seq,
+#         target_phoneme
+#     )
+
+#     if not target_positions:
+
+#         return {
+#             "target_positions": [],
+#             "errors": [],
+#             "accuracy": 0
+#         }
+
+#     errors = []
+#     correct = 0
+
+#     for pos in target_positions:
+
+#         if pos < len(spoken_seq):
+
+#             spoken = spoken_seq[pos]
+
+#         else:
+
+#             spoken = None
+
+#         expected = expected_seq[pos]
+
+#         error_type = classify_error(expected, spoken)
+
+#         if error_type is None:
+#             correct += 1
+
+#         errors.append({
+#             "position": pos,
+#             "expected": expected,
+#             "spoken": spoken,
+#             "error_type": error_type
+#         })
+
+#     accuracy = int((correct / len(target_positions)) * 100)
+
+#     word_correct = all(err["error_type"] is None for err in errors )
+    
+#     return {
+#         "word_correct": word_correct,
+#         "target_positions": target_positions,
+
+#         "errors": errors,
+
+#         "accuracy": accuracy
+#     }
+
+
+def detect_phoneme_errors(expected_seq, spoken_seq, target_phoneme):
 
     target_positions = find_target_positions(
         expected_seq,
@@ -215,8 +271,8 @@ def detect_phoneme_errors(expected_seq, spoken_seq, target_phoneme):
     )
 
     if not target_positions:
-
         return {
+            "word_correct": False,
             "target_positions": [],
             "errors": [],
             "accuracy": 0
@@ -225,40 +281,32 @@ def detect_phoneme_errors(expected_seq, spoken_seq, target_phoneme):
     errors = []
     correct = 0
 
+    # 👑 استخدم context-aware evaluation
     for pos in target_positions:
 
-        if pos < len(spoken_seq):
+        result = evaluate_phoneme_alignment(
+            spoken_seq,
+            expected_seq,
+            pos
+        )
 
-            spoken = spoken_seq[pos]
-
-        else:
-
-            spoken = None
-
-        expected = expected_seq[pos]
-
-        error_type = classify_error(expected, spoken)
-
-        if error_type is None:
+        if result["error_type"] is None:
             correct += 1
 
         errors.append({
             "position": pos,
-            "expected": expected,
-            "spoken": spoken,
-            "error_type": error_type
+            "expected": result["expected_phoneme"],
+            "spoken": result["spoken_phoneme"],
+            "error_type": result["error_type"]
         })
 
     accuracy = int((correct / len(target_positions)) * 100)
 
+    word_correct = all(err["error_type"] is None for err in errors)
+
     return {
-
+        "word_correct": word_correct,
         "target_positions": target_positions,
-
         "errors": errors,
-
         "accuracy": accuracy
     }
-
-
-

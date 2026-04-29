@@ -256,7 +256,8 @@ def detect_sentence_level(
 
         "accuracy": detection["accuracy"],
 
-        "word_correct": detection["word_correct"],
+        "word_correct": detection["accuracy"] == 100,
+        # "word_correct":detection.get("word_correct", False),
         "error_type": None
     }
 

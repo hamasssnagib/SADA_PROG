@@ -88,7 +88,8 @@ def detect_word_level(
         recognized_text,
         target_word,
         target_letter,
-        threshold=0.5
+        # threshold=0.5
+        threshold=0.4 # we use a lower threshold for word level to allow more flexibility in pronunciation
     )
 
     if not valid:
@@ -178,7 +179,45 @@ def detect_word_level(
 
         "accuracy": detection["accuracy"],
 
-        "word_correct": detection["word_correct"],
+        # "word_correct": detection["word_correct"],
+        "word_correct":detection.get("word_correct", False),
         "error_type": None
     }
+    
+    # # 👑 FIX: recompute accuracy
+
+    # total = len(detection["errors"])
+
+    # correct = sum(
+    #     1 for e in detection["errors"]
+    #     if e["error_type"] is None
+    # )
+
+    # accuracy = int((correct / total) * 100) if total > 0 else 0
+
+    
+    # # print("\nDEBUG:")
+    # # print("errors:", detection["errors"])
+    # # print("correct:", correct)
+    # # print("total:", total)
+    # # print("accuracy:", accuracy)
+    # return {
+
+    #     "recognized_text": recognized_text,
+
+    #     "expected_phonemes": expected_seq,
+    #     "spoken_phonemes": spoken_seq,
+
+    #     "target_phoneme": target_phoneme,
+
+    #     "target_positions": detection["target_positions"],
+
+    #     "errors": detection["errors"],
+
+    #     "accuracy": accuracy,
+
+    #     "word_correct": accuracy == 100,
+
+    #     "error_type": None
+    # }
 
