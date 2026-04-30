@@ -9,6 +9,37 @@ import librosa
 # =====================================================
 
 TEST_CASES = [
+    
+# {
+# "name": "Isolation - letter ر",
+# "level": "isolation",
+# "text": "ررر",
+# "target": "ر"
+# },
+# {
+# "name": "Isolation - letter ي",
+# "level": "isolation",
+# "text": "يييي",
+# "target": "ر"
+# },
+# {
+# "name": "Isolation - letter ل",
+# "level": "isolation",
+# "text": "للل",
+# "target": "ل"
+# },
+# {
+# "name": "Isolation - letter ي",
+# "level": "isolation",
+# "text": "يييي",
+# "target": "ل"
+# },
+# {
+# "name": "Isolation - letter لالغتا",
+# "level": "isolation",
+# "text": "لالغتا",
+# "target": "ر"
+# },
 {
 "name": "Isolation - letter س",
 "level": "isolation",
@@ -25,6 +56,12 @@ TEST_CASES = [
 "name": "Isolation - letter ت",
 "level": "isolation",
 "text": "تتت",
+"target": "س"
+},
+{
+"name": "Isolation - letter لاىنالا",
+"level": "isolation",
+"text": "لاىنالا",
 "target": "س"
 },
 {
@@ -52,6 +89,20 @@ TEST_CASES = [
 "name": "Word - سلسلة",
 "level": "word",
 "text": "سلسلة",
+"target": "س",
+"target_word": "سمكة"
+},
+{
+"name": "Word - بلال",
+"level": "word",
+"text": "بلال",
+"target": "س",
+"target_word": "سمكة"
+},
+{
+"name": "Word - سالي",
+"level": "word",
+"text": "سالي",
 "target": "س",
 "target_word": "سمكة"
 },

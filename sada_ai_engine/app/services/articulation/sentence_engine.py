@@ -234,6 +234,22 @@ def detect_sentence_level(
         target_phoneme
     )
 
+
+
+    # -----------------------------------------------------
+    # 🎯 Step 8: compute accuracy from error types
+    # -----------------------------------------------------
+
+    errors = detection["errors"]
+
+    # لو كلهم None → 100
+    if all(e["error_type"] is None for e in errors):
+        final_accuracy = 100
+
+    # لو فيه أي error → 50
+    else:
+        final_accuracy = 50
+    
     # -----------------------------------------------------
     # Step 8
     # return result
@@ -254,9 +270,9 @@ def detect_sentence_level(
 
         "errors": detection["errors"],
 
-        "accuracy": detection["accuracy"],
+        "accuracy": final_accuracy,
 
-        "word_correct": detection["accuracy"] == 100,
+        "word_correct": final_accuracy == 100,
         # "word_correct":detection.get("word_correct", False),
         "error_type": None
     }

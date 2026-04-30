@@ -1,164 +1,480 @@
 import numpy as np
 import librosa
 
-
 # -------------------------------------------------
-# Feature extraction
+# 🎯 Feature Extraction
 # -------------------------------------------------
 
 def extract_features(y, sr):
 
-    S = np.abs(librosa.stft(y))
-
-    freqs = librosa.fft_frequencies(sr=sr)
-
-    centroid = librosa.feature.spectral_centroid(y=y, sr=sr).mean()
-
-    energy = np.mean(y**2)
+    centroid = librosa.feature.spectral_centroid(y=y, sr=sr)[0]
+    zcr = librosa.feature.zero_crossing_rate(y)[0]
+    bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr)[0]
 
     return {
-        "spectrum": S,
-        "freqs": freqs,
-        "centroid": centroid,
-        "energy": energy
+        "centroid_mean": float(np.mean(centroid)),
+        "centroid_std": float(np.std(centroid)),
+        "zcr_mean": float(np.mean(zcr)),
+        "bandwidth_mean": float(np.mean(bandwidth)),
+        "energy": float(np.mean(y ** 2)),
+        "duration": float(librosa.get_duration(y=y, sr=sr))
     }
 
 
 # -------------------------------------------------
-# Fricative detector (س / ش)
+# 🧠 Gate (FIXED)
 # -------------------------------------------------
 
-def detect_fricative(features, low, high):
+def is_isolation(features):
 
-    S = features["spectrum"]
-    freqs = features["freqs"]
+    duration = features["duration"]
+    variation = features["centroid_std"]
+    energy = features["energy"]
 
-    band = (freqs > low) & (freqs < high)
+    # ❗ خليها أوسع عشان التسجيل الحقيقي
+    if duration > 3.0:
+        return False
 
-    band_energy = S[band].mean()
+    # ❗ أهم حاجة
+    if variation > 1500:
+        return False
 
-    return band_energy
+    if energy < 0.0001:
+        return False
 
-
-# -------------------------------------------------
-# Stop detector (ك / ق)
-# -------------------------------------------------
-
-def detect_stop(features):
-
-    centroid = features["centroid"]
-
-    if centroid < 2000:
-        return 0.4
-
-    if centroid < 3500:
-        return 0.7
-
-    return 1.0
+    return True
 
 
 # -------------------------------------------------
-# Liquid detector (ر / ل)
+# 🎯 Classify sound type
 # -------------------------------------------------
 
-def detect_liquid(features):
+def classify_sound(features):
 
-    centroid = features["centroid"]
+    c = features["centroid_mean"]
+    z = features["zcr_mean"]
 
-    if centroid < 2500:
-        return 0.8
+    if c > 4000:
+        return "fricative_high"
 
-    return 0.5
+    if c > 2800:
+        return "fricative_low"
+
+    if 1500 < c < 2800:
+        return "liquid"
+
+    if z > 0.07:
+        return "stop"
+
+    if c < 1500:
+        return "nasal"
+
+    return "unknown"
 
 
 # -------------------------------------------------
-# Main isolation detector
+# 🎯 Target → group
 # -------------------------------------------------
 
-def detect_isolation_acoustic(y, sr, target_letter):
+def get_target_group(letter):
+
+    if letter in ["س","ش","ز","ص"]:
+        return "fricative_high"
+
+    if letter in ["ف","ث","ه"]:
+        return "fricative_low"
+
+    if letter in ["ر","ل"]:
+        return "liquid"
+
+    if letter in ["ت","د","ك","ق","ط","ب"]:
+        return "stop"
+
+    if letter in ["م","ن"]:
+        return "nasal"
+
+    return "unknown"
+
+
+# -------------------------------------------------
+# 🎯 Exact Match (SMART FIX)
+# -------------------------------------------------
+
+def is_exact_match(letter, c, z):
+
+    # --------------------------
+    # س
+    if letter == "س":
+        return c > 4200 and z > 0.3
+
+    # --------------------------
+    # ش
+    if letter == "ش":
+        return 3000 < c < 4200
+
+    # --------------------------
+    # ف
+    if letter == "ف":
+        return 2500 < c < 3500 and z < 0.4
+
+    # --------------------------
+    # م
+    if letter == "م":
+        return c < 1500 and z < 0.1
+
+    # --------------------------
+    # ت
+    if letter == "ت":
+        return z > 0.08
+
+    # --------------------------
+    # ر و ل (مستحيل يتفصلوا بدقة)
+    if letter in ["ر", "ل"]:
+        return 1600 < c < 2800
+
+    return False
+
+
+# -------------------------------------------------
+# 🎯 MAIN DETECTOR (FINAL)
+# -------------------------------------------------
+
+def detect_isolation(y, sr, target_letter):
+
+    target_letter = target_letter.strip()
+
+    if len(target_letter) != 1:
+        return {
+            "accuracy": 0,
+            "error_type": "invalid_target_letter",
+            "details": {}
+        }
 
     features = extract_features(y, sr)
 
-    # ---------------------------------------------
-    # س
-    # ---------------------------------------------
-
-    if target_letter == "س":
-
-        energy = detect_fricative(features, 4000, 8000)
-
-        score = min(energy * 10, 1.0)
-
-    # ---------------------------------------------
-    # ش
-    # ---------------------------------------------
-
-    elif target_letter == "ش":
-
-        energy = detect_fricative(features, 3000, 7000)
-
-        score = min(energy * 10, 1.0)
-
-    # ---------------------------------------------
-    # ف
-    # ---------------------------------------------
-
-    elif target_letter == "ف":
-
-        energy = detect_fricative(features, 2500, 6000)
-
-        score = min(energy * 10, 1.0)
-
-    # ---------------------------------------------
-    # ك
-    # ---------------------------------------------
-
-    elif target_letter == "ك":
-
-        score = detect_stop(features)
-
-    # ---------------------------------------------
-    # ق
-    # ---------------------------------------------
-
-    elif target_letter == "ق":
-
-        score = detect_stop(features)
-
-    # ---------------------------------------------
-    # ر
-    # ---------------------------------------------
-
-    elif target_letter == "ر":
-
-        score = detect_liquid(features)
-
-    # ---------------------------------------------
-    # ل
-    # ---------------------------------------------
-
-    elif target_letter == "ل":
-
-        score = detect_liquid(features)
-
-    else:
-
+    # ❌ مش isolation
+    if not is_isolation(features):
         return {
             "accuracy": 0,
-            "error_type": "unsupported_letter"
+            "error_type": "not_isolation_sound",
+            "details": {
+                "duration": features["duration"],
+                "variation": features["centroid_std"]
+            }
         }
 
-    accuracy = int(score * 100)
+    predicted_type = classify_sound(features)
+    target_type = get_target_group(target_letter)
 
-    if accuracy >= 80:
-        error = None
-    elif accuracy >= 50:
-        error = "distortion"
-    else:
-        error = "substitution"
+    c = features["centroid_mean"]
+    z = features["zcr_mean"]
 
+    # ---------------------------------
+    # 🎯 LIQUID FIX (ر / ل)
+    # ---------------------------------
+    if target_letter in ["ر", "ل"]:
+
+    # 🎯 شرط أقوى للـ ر
+        if target_letter == "ر":
+            if 1800 < c < 2400 and z > 0.08:
+                return {
+                    "accuracy": 100,
+                    "error_type": None,
+                    "details": {
+                        "expected_phoneme": "ر",
+                        "predicted": "ر",
+                        "centroid": c,
+                        "zcr": z
+                    }
+                }
+
+        # 🎯 شرط أقوى للـ ل
+        if target_letter == "ل":
+            if 2000 < c < 2800 and z < 0.12:
+                return {
+                    "accuracy": 100,
+                    "error_type": None,
+                    "details": {
+                        "expected_phoneme": "ل",
+                        "predicted": "ل",
+                        "centroid": c,
+                        "zcr": z
+                    }
+                }
+
+        # ⚠️ fallback (confusion)
+        if 1600 < c < 2800:
+            return {
+                "accuracy": 50,
+                "error_type": "distortion",
+                "details": {
+                    "expected_phoneme": target_letter,
+                    "note": "liquid confusion (ر/ل)",
+                    "centroid": c,
+                    "zcr": z
+                }
+            }
+
+        # ❌ غلط
+        return {
+            "accuracy": 0,
+            "error_type": "substitution",
+            "details": {
+                "expected_phoneme": target_letter,
+                "centroid": c,
+                "zcr": z
+            }
+        }
+
+    # ---------------------------------
+    # ✅ صح 100%
+    # ---------------------------------
+    if is_exact_match(target_letter, c, z):
+        return {
+            "accuracy": 100,
+            "error_type": None,
+            "details": {
+                "expected_phoneme": target_letter,
+                "predicted": target_letter,
+                "centroid": c,
+                "zcr": z
+            }
+        }
+
+    # ---------------------------------
+    # ⚠️ distortion
+    # ---------------------------------
+    if predicted_type == target_type:
+        return {
+            "accuracy": 50,
+            "error_type": "distortion",
+            "details": {
+                "expected_phoneme": target_letter,
+                "predicted_type": predicted_type,
+                "centroid": c,
+                "zcr": z
+            }
+        }
+
+    # ---------------------------------
+    # ❌ substitution
+    # ---------------------------------
     return {
-        "accuracy": accuracy,
-        "error_type": error,
-        "detector": "acoustic"
+        "accuracy": 0,
+        "error_type": "substitution",
+        "details": {
+            "expected_phoneme": target_letter,
+            "predicted_type": predicted_type,
+            "centroid": c,
+            "zcr": z
+        }
     }
+
+
+
+
+
+
+
+
+
+
+# import numpy as np
+# import librosa
+
+# # -------------------------------------------------
+# # 🎯 Feature Extraction
+# # -------------------------------------------------
+
+# def extract_features(y, sr):
+
+#     centroid = librosa.feature.spectral_centroid(y=y, sr=sr)[0]
+#     zcr = librosa.feature.zero_crossing_rate(y)[0]
+#     bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr)[0]
+
+#     return {
+#         "centroid_mean": float(np.mean(centroid)),
+#         "centroid_std": float(np.std(centroid)),
+#         "zcr_mean": float(np.mean(zcr)),
+#         "bandwidth_mean": float(np.mean(bandwidth)),
+#         "energy": float(np.mean(y ** 2)),
+#         "duration": float(librosa.get_duration(y=y, sr=sr))
+#     }
+
+
+# # -------------------------------------------------
+# # 🧠 Gate (Isolation vs Word)
+# # -------------------------------------------------
+
+# def is_isolation(features):
+
+#     duration = features["duration"]
+#     variation = features["centroid_std"]
+#     energy = features["energy"]
+
+#     if duration > 2.5:
+#         return False
+
+#     if variation > 2000:
+#         return False
+
+#     if energy < 0.0002:
+#         return False
+
+#     return True
+
+
+# # -------------------------------------------------
+# # 🎯 Classify sound type
+# # -------------------------------------------------
+
+# def classify_sound(features):
+
+#     c = features["centroid_mean"]
+#     z = features["zcr_mean"]
+
+#     if c > 4000:
+#         return "fricative_high"
+
+#     if c > 2800:
+#         return "fricative_low"
+
+#     if 1500 < c < 2600:
+#         return "liquid"
+
+#     if z > 0.07:
+#         return "stop"
+
+#     if c < 1500:
+#         return "nasal"
+
+#     return "unknown"
+
+
+# # -------------------------------------------------
+# # 🎯 Target → group
+# # -------------------------------------------------
+
+# def get_target_group(letter):
+
+#     if letter in ["س","ش","ز","ص"]:
+#         return "fricative_high"
+
+#     if letter in ["ف","ث"]:
+#         return "fricative_low"
+
+#     if letter in ["ر","ل"]:
+#         return "liquid"
+
+#     if letter in ["ت","د","ك","ق","ط"]:
+#         return "stop"
+
+#     if letter in ["م","ن"]:
+#         return "nasal"
+
+#     return "unknown"
+
+
+# # -------------------------------------------------
+# # 🎯 Exact Match (FIXED)
+# # -------------------------------------------------
+
+# def is_exact_match(letter, c, z):
+
+#     if letter == "ر":
+#         return 1700 < c < 2300
+
+#     if letter == "ل":
+#         return 1800 < c < 2600   # ✅ FIX
+
+#     if letter == "س":
+#         return c > 4000          # ✅ FIX
+
+#     if letter == "ش":
+#         return 2800 < c < 3800   # ✅ FIX
+
+#     if letter == "ف":
+#         return 2400 < c < 3300
+
+#     if letter == "م":
+#         return c < 1500
+
+#     if letter == "ت":
+#         return z > 0.07          # ✅ FIX
+
+#     return False
+
+
+
+
+# # -------------------------------------------------
+# # 🎯 MAIN DETECTOR
+# # -------------------------------------------------
+
+# def detect_isolation(y, sr, target_letter):
+
+#     target_letter = target_letter.strip()
+
+#     if len(target_letter) != 1:
+#         return {
+#             "accuracy": 0,
+#             "error_type": "invalid_target_letter",
+#             "details": {}
+#         }
+
+#     features = extract_features(y, sr)
+
+#     # ❌ مش Isolation
+#     if not is_isolation(features):
+#         return {
+#             "accuracy": 0,
+#             "error_type": "not_isolation_sound",
+#             "details": {
+#                 "duration": features["duration"],
+#                 "variation": features["centroid_std"]
+#             }
+#         }
+
+#     predicted_type = classify_sound(features)
+#     target_type = get_target_group(target_letter)
+
+#     c = features["centroid_mean"]
+#     z = features["zcr_mean"]
+
+#     # ✅ صح 100%
+#     if is_exact_match(target_letter, c, z):
+#         return {
+#             "accuracy": 100,
+#             "error_type": None,
+#             "details": {
+#                 "expected_phoneme": target_letter,
+#                 "predicted": target_letter,
+#                 "centroid": c,
+#                 "zcr": z
+#             }
+#         }
+
+#     # ⚠️ distortion
+#     if predicted_type == target_type:
+#         return {
+#             "accuracy": 50,
+#             "error_type": "distortion",
+#             "details": {
+#                 "expected_phoneme": target_letter,
+#                 "predicted_type": predicted_type,
+#                 "centroid": c,
+#                 "zcr": z
+#             }
+#         }
+
+#     # ❌ substitution
+#     return {
+#         "accuracy": 0,
+#         "error_type": "substitution",
+#         "details": {
+#             "expected_phoneme": target_letter,
+#             "predicted_type": predicted_type,
+#             "centroid": c,
+#             "zcr": z
+#         }
+#     }
