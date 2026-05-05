@@ -38,7 +38,44 @@ def segment_similarity(seg1, seg2, sr):
 # Detect repetition
 # -------------------------------------------------
 
-def detect_repetition(y, sr, intervals, sim_threshold=0.8):
+# def detect_repetition(y, sr, intervals, sim_threshold=0.8):
+
+#     repetition_count = 0
+#     similarities = []
+
+#     for i in range(len(intervals) - 1):
+
+#         start1, end1 = intervals[i]
+#         start2, end2 = intervals[i + 1]
+
+#         seg1 = y[start1:end1]
+#         seg2 = y[start2:end2]
+
+#         # 👑 حساب duration
+#         dur1 = (end1 - start1) / sr
+#         dur2 = (end2 - start2) / sr
+
+#         # 🔥 الفلترة هنا 👇
+#         if not (0.1 < dur1 < 1.5 and 0.1 < dur2 < 1.5):
+#             continue
+
+#         # skip very small segments (زيادة أمان)
+#         if len(seg1) < 500 or len(seg2) < 500:
+#             continue
+
+#         sim = segment_similarity(seg1, seg2, sr)
+#         similarities.append(sim)
+
+#         if sim > sim_threshold:
+#             repetition_count += 1
+
+#     return {
+#         "repetition_count": repetition_count,
+#         "similarities": similarities
+#     }
+
+
+def detect_repetition(y, sr, intervals, sim_threshold=0.85):
 
     repetition_count = 0
     similarities = []
@@ -51,22 +88,24 @@ def detect_repetition(y, sr, intervals, sim_threshold=0.8):
         seg1 = y[start1:end1]
         seg2 = y[start2:end2]
 
-        # 👑 حساب duration
         dur1 = (end1 - start1) / sr
         dur2 = (end2 - start2) / sr
 
-        # 🔥 الفلترة هنا 👇
-        if not (0.1 < dur1 < 1.5 and 0.1 < dur2 < 1.5):
+        # 👑 لازم يكونوا قريبين في الطول
+        if abs(dur1 - dur2) > 0.3:
             continue
 
-        # skip very small segments (زيادة أمان)
+        if not (0.1 < dur1 < 1.2):
+            continue
+
         if len(seg1) < 500 or len(seg2) < 500:
             continue
 
         sim = segment_similarity(seg1, seg2, sr)
         similarities.append(sim)
 
-        if sim > sim_threshold:
+        # 👑 لازم similarity عالي + duration صغير
+        if sim > sim_threshold and dur1 < 0.7:
             repetition_count += 1
 
     return {

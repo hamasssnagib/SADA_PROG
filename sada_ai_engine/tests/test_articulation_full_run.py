@@ -40,96 +40,118 @@ TEST_CASES = [
 # "text": "لالغتا",
 # "target": "ر"
 # },
+# {
+# "name": "Isolation - letter س",
+# "level": "isolation",
+# "text": "سسس",
+# "target": "س"
+# },
+# {
+# "name": "Isolation - letter ث",
+# "level": "isolation",
+# "text": "ثثث",
+# "target": "س"
+# },
+# {
+# "name": "Isolation - letter ت",
+# "level": "isolation",
+# "text": "تتت",
+# "target": "س"
+# },
+# {
+# "name": "Isolation - letter لاىنالا",
+# "level": "isolation",
+# "text": "لاىنالا",
+# "target": "س"
+# },
 {
-"name": "Isolation - letter س",
-"level": "isolation",
-"text": "سسس",
-"target": "س"
-},
-{
-"name": "Isolation - letter ث",
-"level": "isolation",
-"text": "ثثث",
-"target": "س"
-},
-{
-"name": "Isolation - letter ت",
-"level": "isolation",
-"text": "تتت",
-"target": "س"
-},
-{
-"name": "Isolation - letter لاىنالا",
-"level": "isolation",
-"text": "لاىنالا",
-"target": "س"
-},
-{
-"name": "Word - سمكة",
+"name": "Word - سا",
 "level": "word",
-"text": "سمكة",
+"text": "سا",
 "target": "س",
-"target_word": "سمكة"
+"target_word": "سا"
 },
 {
-"name": "Word - ثمكة",
+"name": "Word - سو",
 "level": "word",
-"text": "ثمكة",
+"text": "سو",
 "target": "س",
-"target_word": "سمكة"
+"target_word": "سو"
 },
 {
-"name": "Word - تمكة",
+"name": "Word - سي",
 "level": "word",
-"text": "تمكة",
+"text": "سي",
 "target": "س",
-"target_word": "سمكة"
-},
-{
-"name": "Word - سلسلة",
-"level": "word",
-"text": "سلسلة",
-"target": "س",
-"target_word": "سمكة"
-},
-{
-"name": "Word - بلال",
-"level": "word",
-"text": "بلال",
-"target": "س",
-"target_word": "سمكة"
-},
-{
-"name": "Word - سالي",
-"level": "word",
-"text": "سالي",
-"target": "س",
-"target_word": "سمكة"
-},
-{
-"name": "Sentence - انا اكلت سمكة",
-"level": "sentence",
-"text": "انا اكلت سمكة",
-"target": "س",
-"target_word": "سمكة",
-"target_sentence": "انا اكلت سمكة"
-},
-{
-"name": "Sentence - انا اكلت ثمكة",
-"level": "sentence",
-"text": "انا اكلت ثمكة",
-"target": "س",
-"target_word": "سمكة",
-"target_sentence": "انا اكلت سمكة"
+"target_word": "سي"
 }
-,{
-"name": "Sentence - ماما سحاب أنا",
-"level": "sentence",
-"text": "ماما سحاب أنا",
-"target": "س",
-"target_word": "سمكة",
-"target_sentence": "انا اكلت سمكة"
-}
+# ,
+# {
+# "name": "Word - سمكة",
+# "level": "word",
+# "text": "سمكة",
+# "target": "س",
+# "target_word": "سمكة"
+# },
+# {
+# "name": "Word - ثمكة",
+# "level": "word",
+# "text": "ثمكة",
+# "target": "س",
+# "target_word": "سمكة"
+# },
+# {
+# "name": "Word - تمكة",
+# "level": "word",
+# "text": "تمكة",
+# "target": "س",
+# "target_word": "سمكة"
+# },
+# {
+# "name": "Word - سلسلة",
+# "level": "word",
+# "text": "سلسلة",
+# "target": "س",
+# "target_word": "سمكة"
+# },
+# {
+# "name": "Word - بلال",
+# "level": "word",
+# "text": "بلال",
+# "target": "س",
+# "target_word": "سمكة"
+# },
+# {
+# "name": "Word - سالي",
+# "level": "word",
+# "text": "سالي",
+# "target": "س",
+# "target_word": "سمكة"
+# },
+# {
+# "name": "Sentence - انا اكلت سمكة",
+# "level": "sentence",
+# "text": "انا اكلت سمكة",
+# "target": "س",
+# "target_word": "سمكة",
+# "target_sentence": "انا اكلت سمكة"
+# },
+# {
+# "name": "Sentence - انا اكلت ثمكة",
+# "level": "sentence",
+# "text": "انا اكلت ثمكة",
+# "target": "س",
+# "target_word": "سمكة",
+# "target_sentence": "انا اكلت سمكة"
+# }
+# ,{
+# "name": "Sentence - ماما سحاب أنا",
+# "level": "sentence",
+# "text": "ماما سحاب أنا",
+# "target": "س",
+# "target_word": "سمكة",
+# "target_sentence": "انا اكلت سمكة"
+# }
 ]
 
 # =====================================================

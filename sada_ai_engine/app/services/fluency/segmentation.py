@@ -16,7 +16,7 @@ import librosa
 # Get speech segments
 # -------------------------------------------------
 
-def get_speech_segments(y, sr, top_db=20):
+def get_speech_segments(y, sr, top_db=30):
     """
     Returns speech intervals (non-silent parts)
 

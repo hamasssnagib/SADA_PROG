@@ -152,6 +152,14 @@ def detect_phoneme_with_context(stream, target_seq, target_index):
 
                     candidates.append(stream[pos])
 
+            # ------------------------------
+            # single-phoneme word / no context
+            # ------------------------------
+
+            elif not before and not after:
+
+                candidates.append(stream[pos])
+
     # -----------------------------------------------------
     # no candidate found
     # -----------------------------------------------------

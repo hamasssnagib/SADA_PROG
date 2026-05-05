@@ -1,5 +1,4 @@
 import os
-
 from app.services.global_preprocess.audio_preprocess import preprocess_audio
 from app.services.articulation.articulation_engine import detect_articulation
 
@@ -10,12 +9,12 @@ from app.services.articulation.articulation_engine import detect_articulation
 TEST_FILES = [
     {
         "name": "RAA correct",
-        "path": "tests/test_audio/ل.wav",
+        "path": "tests/test_audio/ر.wav",
         "target": "ر"
     },
     {
         "name": "LAM correct",
-        "path": "tests/test_audio/ر.wav",
+        "path": "tests/test_audio/ل.wav",
         "target": "ل"
     },
     {
