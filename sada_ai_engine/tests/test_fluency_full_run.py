@@ -11,20 +11,20 @@ TEST_CASES = [
 
     {
         "name": "Normal speech",
-        "path": "tests/test_audio/سمكة3.wav",
-        "target_text": "انا اكلت سمكة"
+        "path": "tests/test_audio/سا.wav",
+        "target_text": "سا"
     },
 
     {
         "name": "Repetition",
         "path": "tests/test_audio/ثلثلة3.wav",
-        "target_text": "انا اكلت سمكة"
+        "target_text": "انا اكلت سم"
     },
 
     {
         "name": "Prolongation",
-        "path": "tests/test_audio/أينب3.wav",
-        "target_text": "انا اكلت سمكة"
+        "path": "tests/test_audio/ثلثلة3.wav",
+        "target_text": "سلسلة"
     },
 
     # {
