@@ -76,10 +76,10 @@
           <mxGeometry y="50" width="209" height="118" as="geometry" />
         </mxCell>
         <mxCell id="yQFO_CzzcYj-M0yQUE9f-40" value="&lt;b&gt;AI_Analysis&lt;/b&gt;" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;fillColor=light-dark(#7EA6E0,#FFFFFF);" parent="1" vertex="1">
-          <mxGeometry x="2776" y="-1325" width="173" height="175" as="geometry" />
+          <mxGeometry x="2776" y="-1325" width="179" height="236" as="geometry" />
         </mxCell>
-        <mxCell id="yQFO_CzzcYj-M0yQUE9f-41" value="analysis_id (PK)&lt;br&gt;attempt_id (FK)&lt;div&gt;mode&lt;br&gt;accuracy&lt;div&gt;score&lt;/div&gt;&lt;div&gt;error_type&lt;/div&gt;&lt;div&gt;error_category&lt;/div&gt;&lt;div&gt;created_at&lt;br&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;" parent="yQFO_CzzcYj-M0yQUE9f-40" vertex="1">
-          <mxGeometry y="50" width="173" height="125" as="geometry" />
+        <mxCell id="yQFO_CzzcYj-M0yQUE9f-41" value="analysis_id (PK)&lt;br&gt;attempt_id (FK)&lt;div&gt;mode&lt;br&gt;accuracy&lt;div&gt;score&lt;/div&gt;&lt;div&gt;error_type&lt;/div&gt;&lt;div&gt;error_category\&lt;/div&gt;&lt;div&gt;mean_f0&lt;/div&gt;&lt;div&gt;jitter&lt;/div&gt;&lt;div&gt;energy_dev&lt;/div&gt;&lt;div&gt;shimmer&lt;/div&gt;&lt;div&gt;created_at&lt;br&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;" parent="yQFO_CzzcYj-M0yQUE9f-40" vertex="1">
+          <mxGeometry y="50" width="179" height="186" as="geometry" />
         </mxCell>
         <mxCell id="yQFO_CzzcYj-M0yQUE9f-44" value="&lt;b&gt;Reward_Log&lt;/b&gt;" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;fillColor=light-dark(#7EA6E0,#FFFFFF);" parent="1" vertex="1">
           <mxGeometry x="4257" y="-1227" width="169" height="146" as="geometry" />
@@ -88,10 +88,10 @@
           <mxGeometry y="50" width="169" height="96" as="geometry" />
         </mxCell>
         <mxCell id="yQFO_CzzcYj-M0yQUE9f-46" value="&lt;b&gt;Progress_Summary&lt;/b&gt;" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;fillColor=light-dark(#7EA6E0,#FFFFFF);" parent="1" vertex="1">
-          <mxGeometry x="2285" y="-370" width="173" height="182" as="geometry" />
+          <mxGeometry x="2285" y="-370" width="173" height="232" as="geometry" />
         </mxCell>
-        <mxCell id="yQFO_CzzcYj-M0yQUE9f-47" value="progress_summary_id (PK)&lt;br&gt;child_path_id (FK)&lt;div&gt;&lt;div&gt;current_Level_id (FK)&lt;/div&gt;&lt;div&gt;current_difficulty_id (FK)&lt;/div&gt;&lt;div&gt;overall_score&lt;/div&gt;&lt;div&gt;overall_accuracy&lt;/div&gt;&lt;div&gt;sessions_completed&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;last_updated&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;" parent="yQFO_CzzcYj-M0yQUE9f-46" vertex="1">
-          <mxGeometry y="50" width="173" height="132" as="geometry" />
+        <mxCell id="yQFO_CzzcYj-M0yQUE9f-47" value="progress_summary_id (PK)&lt;br&gt;child_path_id (FK)&lt;div&gt;&lt;div&gt;current_Level_id (FK)&lt;/div&gt;&lt;div&gt;current_difficulty_id (FK)&lt;/div&gt;&lt;div&gt;overall_score&lt;/div&gt;&lt;div&gt;overall_accuracy&lt;/div&gt;&lt;div&gt;sessions_completed&lt;/div&gt;&lt;div&gt;&lt;div&gt;baseline_mean_f0&lt;/div&gt;&lt;div&gt;baseline_std_f0&lt;/div&gt;&lt;div&gt;baseline_updated_at&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;last_updated&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;" parent="yQFO_CzzcYj-M0yQUE9f-46" vertex="1">
+          <mxGeometry y="50" width="173" height="182" as="geometry" />
         </mxCell>
         <mxCell id="xj2kzQcrnB4YQc5m3UhW-1" value="&lt;b&gt;&lt;font style=&quot;font-size: 24px;&quot;&gt;ERD DIAGRAM FOR SADA_PROJECT&lt;/font&gt;&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fillColor=light-dark(#7EA6E0,#FFFFFF);strokeColor=#10739e;" parent="1" vertex="1">
           <mxGeometry x="3091" y="-1840" width="490" height="30" as="geometry" />

@@ -253,11 +253,7 @@ async def analyze(
                 "shimmer":
                     acoustic_features.get("shimmer"),
 
-                "hnr":
-                    acoustic_features.get("hnr"),
-
-                "energy_dev":
-                    acoustic_features.get("energy_dev")
+                
             },
          
             "feature_vector": {

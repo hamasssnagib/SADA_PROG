@@ -2,9 +2,7 @@ import os
 from app.services.global_preprocess.audio_preprocess import preprocess_audio
 from app.services.articulation.articulation_engine import detect_articulation
 
-# ------------------------------------------
-# 🎧 حطي هنا مسارات الفايلات بتاعتك
-# ------------------------------------------
+
 
 TEST_FILES = [
     {
