@@ -126,20 +126,6 @@ async def analyze(
                 }
             )
 
-        # # -------------------------------------------------
-        # # ARTICULATION PREPROCESS
-        # # -------------------------------------------------
-
-        # enhanced = articulation_preprocess(global_data)
-
-        # y = enhanced["enhanced_waveform"]
-        # sr = enhanced["sample_rate"]
-
-        
-        # -------------------------------------------------
-        # ANALYSIS ROUTING
-        # -------------------------------------------------
-
         if problem == "articulation":
 
             analysis_result = detect_articulation(
@@ -173,7 +159,9 @@ async def analyze(
             "invalid_target_configuration",
             "phoneme_conversion_error",
             "target_letter_error",
-            "invalid_target_letter"
+            "invalid_target_letter",
+            "missing_target",
+            "invalid_level"
         }
 
         if engine_error in invalid_engine_errors:
@@ -200,6 +188,7 @@ async def analyze(
 
 
         accuracy = analysis_result.get("accuracy") or 0
+        exercise_correct = analysis_result.get("exercise_correct", False)
         decision = get_session_decision(accuracy)
         
 
@@ -210,6 +199,7 @@ async def analyze(
         response = {
             "problem": problem,
             "level": level,
+            "exercise_level": level, # duplicate for easier querying and analysis later, but also keep original level field for compatibility with existing code and future flexibility
             
             
             "session": {
@@ -222,32 +212,54 @@ async def analyze(
             "attempt": {
                 "attempt_number": attempt_number
             },
-
             "analysis": {
 
-                "accuracy": accuracy,
-                "error_type": analysis_result.get("error_type"),
+                "accuracy":
+                    accuracy,
 
-                # "block_rate": analysis_result.get("details", {}).get("pause_count", 0),
-                # "repetition_rate": analysis_result.get("details", {}).get("repetition_count", 0),
-                
-                "block_rate": (
-                    details.get("pause_count", 0)
-                    if analysis_result.get("mode") == "fluency" else 0
-                ),
+                "exercise_correct":
+                    exercise_correct,
 
-                "repetition_rate": (
-                    details.get("repetition_count", 0)
-                    if analysis_result.get("mode") == "fluency" else 0
-                ),
+                "exercise_level":
+                    analysis_result.get("exercise_level"),
 
-                "mean_f0": acoustic_features.get("mean_f0"),
-                "jitter": acoustic_features.get("jitter"),
-                "shimmer": acoustic_features.get("shimmer"),
-                "hnr": acoustic_features.get("hnr"),
-                "energy_dev": acoustic_features.get("energy_dev")
+                "error_type":
+                    analysis_result.get("error_type"),
+
+                "target_phoneme":
+                    details.get("target_phoneme"),
+
+                "repetition_count":
+                    details.get("repetition_count", 0),
+
+                "pause_count":
+                    details.get("pause_count", 0),
+
+                "prolongation_count":
+                    details.get("prolongation_count", 0),
+
+                "stuttering_type":
+                    details.get("stuttering_type"),
+
+                "severity":
+                    details.get("severity"),
+
+                "mean_f0":
+                    acoustic_features.get("mean_f0"),
+
+                "jitter":
+                    acoustic_features.get("jitter"),
+
+                "shimmer":
+                    acoustic_features.get("shimmer"),
+
+                "hnr":
+                    acoustic_features.get("hnr"),
+
+                "energy_dev":
+                    acoustic_features.get("energy_dev")
             },
-
+         
             "feature_vector": {
 
                 "centroid": acoustic_features.get("centroid", 0),
@@ -271,8 +283,8 @@ async def analyze(
         )
 
     except Exception as e:
-
+        print(f"Analyze Router Error: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail=f"Processing error: {str(e)}"
+            detail=f"internal processing error: {str(e)}"
         )
